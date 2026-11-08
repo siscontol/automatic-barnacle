@@ -1,0 +1,18 @@
+# Logs and DOM captures can contain your enrolment details
+ems_swap.log
+*.log
+inspect_output/
+
+# Browser profile (session cookies) if you point --profile-dir inside the repo
+.lbs-ems-swap/
+profile/
+
+# Never commit credentials
+.env
+.env.*
+
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/

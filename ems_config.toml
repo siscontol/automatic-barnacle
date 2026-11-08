@@ -1,0 +1,85 @@
+# ems_swap configuration.
+#
+# The selectors below are BEST GUESSES until you run `python -m ems_swap inspect` on
+# the real EMS pages. Anything left commented out uses the built-in default shown.
+# Regexes are case-insensitive. Use TOML 'literal strings' so backslashes stay as-is.
+
+[pages]
+home = "https://ems.london.edu/Student/Home"
+# Page that lists the Global Experience electives with seat availability.
+# Fill in after `inspect` (copy the URL from the browser). "" = home page.
+availability = ""
+# Page that lists YOUR enrolments (source of truth for "confirmed"). "" = availability page.
+enrolments = ""
+# Page with EMS's own swap/replace feature, if it has one. "" = look for Swap/Replace
+# buttons on the enrolments and availability pages.
+swap = ""
+# If the list is reached by clicking rather than by URL, list the link/tab names here,
+# e.g. availability_nav = ["Electives", "Global Experiences"]
+availability_nav = []
+enrolments_nav = []
+# Optional regex that must appear on the enrolments page, e.g. 'my enrolments'.
+enrolments_marker = ""
+
+[auth]
+portal_host = "ems.london.edu"
+# Re-play the "please log in" alert this often while waiting for you.
+relogin_alert_every_s = 60
+
+[courses]
+# Priority order: if both open at once, the first one is tried first.
+# Each course can also be written as { name = "...", keywords = ["global experience", "hong kong"] }
+# if EMS spells the names differently. A row matches when it contains ALL keywords.
+targets = ["Global Experience – Hong Kong", "Global Experience – Vietnam"]
+drop = "Global Experience – Helsinki"
+
+[selectors]
+# Containers that each hold one course. The innermost one containing a course's keywords wins.
+# row = "tr, [role='row'], li, article, .card, .course, .elective, .list-group-item"
+# Restrict where rows are looked for (CSS). Useful if the course appears in several places.
+# availability_region = "#electives-table"
+# enrolled_region = "#my-enrolments"
+# dialog = "[role='dialog'], [role='alertdialog'], .modal, dialog[open], .swal2-popup, .ui-dialog"
+# messages = "[role='alert'], [role='status'], .alert, .validation-summary-errors, ..."
+
+[buttons]
+# Matched against the button/link's accessible name, IN THE BROWSER, so these must be
+# JavaScript-compatible regexes (no (?P<name>...) groups, no inline (?i)).
+# add = '^\s*(add|enrol|enroll|register|sign up|join|select|take)\b(?!.*wait)'
+# drop = '^\s*(drop|remove|withdraw|unenrol|unenroll|de-?register|leave|cancel (enrol|registration))\b'
+# swap = '\b(swap|replace|exchange|switch)\b'
+# confirm = '^\s*(confirm|yes|ok|okay|continue|proceed|submit|add|enrol|enroll|drop|remove|withdraw|swap|replace)\b'
+# cancel = '^\s*(cancel|no|close|back|dismiss|keep)\b'
+
+[text]
+# Matched in Python against lower-cased text with dashes/whitespace normalised.
+# seats_available: group 1 must capture the number of free seats.
+# seats_available = ['(\d+)\s*(?:seats?|places?|spaces?|spots?)\s*(?:available|left|remaining|open|free)']
+# full = ['\bfull\b', '\bwait\s*-?list', '\bsold out\b', '\bclosed\b']
+# enrolled = '(?<![\d/]\s)(?<![\d/])\b(enrolled|confirmed|registered|allocated)\b(?!\s*[:(/]?\s*\d)'
+# waitlisted = '\bwait\s*-?listed\b|\bon (?:the )?wait(?:ing)?\s*-?list\b'
+# pending = '\bpending\b|\bawaiting\b|\bin progress\b|\bprovisional\b'
+# clash = 'clash|conflict|overlap|same (?:time|week|block|dates)'
+# cap = 'credit (?:limit|cap|maximum)|maximum (?:number of )?(?:credits|courses|electives|units)|exceed|too many|quota'
+
+[behaviour]
+# With no seat count and no "full" text, treat an enabled Add/Enrol button as "seat open".
+add_button_means_available = true
+# Click the course name to find Add/Drop buttons on the course's own page.
+follow_course_link = false
+# Re-read the enrolment page every N checks (stops if you got in some other way).
+enrolment_recheck_every = 30
+# Stop and alert after this many unconfirmed add attempts for the same course.
+max_failed_add_attempts = 3
+
+[polling]
+interval_s = 10        # minimum 5
+jitter_min_s = 1
+jitter_max_s = 3
+max_interval_s = 120   # back-off cap
+
+[timeouts]
+navigation_ms = 30000
+action_ms = 15000
+settle_ms = 6000
+network_idle_ms = 2000
